@@ -1,9 +1,14 @@
+import unittest
 import pandas as pd
-from src.interfaces import IDataLoader
+from src.interfaces import IPipelineStage, PipelineContext
+from src.loaders.dummy_data_loader import DummyDataLoader
 
-class DummyDataLoader(IDataLoader):
-    def load(self) -> pd.DataFrame:
-        data = {
+class TestDummyDataLoader(unittest.TestCase):
+    def setUp(self):
+        self.loader: IPipelineStage = DummyDataLoader()
+    
+    def test_dummy_load(self):
+        expected_data = pd.DataFrame({
             'LotNo':       ["Lot1", "Lot2", "Lot3", "Lot4"], # Lot4が異常ロット
             'total_chips': [1000,   1000,   1000,   1000],   # 各ロットの総チップ数
             'defect1_count': [10,     15,     12,     250],   # Lot4で異常スパイク（気泡不良など）
@@ -24,13 +29,11 @@ class DummyDataLoader(IDataLoader):
             'factor7':      [25.1,   26.3,   24.8,   25.5],   # 無関係（クリーンルーム室温）
             'factor8':      [50.0,   52.0,   48.0,   51.0],   # 無関係（クリーンルーム湿度）
             'factor9':      [120.0,  121.0,  119.0,  120.5],  # 無関係（コンベア搬送速度）
-        }
-        return pd.DataFrame(data)
+        })
 
 
-class FileDataLoader(IDataLoader):
-    def __init__(self, file_path: str):
-        self.file_path = file_path
+        expected_context: PipelineContext = PipelineContext(pd.DataFrame())
+        expected_context.data = expected_data
+        result_context: PipelineContext = self.loader.execute(PipelineContext(pd.DataFrame()))
+        pd.testing.assert_frame_equal(result_context.data, expected_context.data)
 
-    def load(self) -> pd.DataFrame:
-        return pd.read_csv(self.file_path)

@@ -2,88 +2,55 @@ from abc import ABC, abstractmethod
 import pandas as pd
 from typing import List, Dict, Any
 
+
+class PipelineContext:
+    def __init__(self, data: pd.DataFrame):
+        self.data: pd.DataFrame = data.copy()
+
+        self.analysis_results: Dict[str, Any] = {}
+
+# interface for all process
+class IPipelineStage(ABC):
+    @abstractmethod
+    def execute(self, context: PipelineContext) -> PipelineContext:
+        pass
+
+class IPipelineJoiner(ABC):
+    @abstractmethod
+    def execute(self, left_context: PipelineContext, right_context: PipelineContext) -> PipelineContext:
+        pass
+
 # interface for data loading
-class IDataLoader(ABC):
+class IDataLoader(IPipelineStage, ABC):
     """
     Interface for data loading.
     """
-    @abstractmethod
-    def load(self) -> pd.DataFrame:
-        pass
+    pass
 
 # interface for data transformation
-class IDataTransformer(ABC):
+class IDataTransformer(IPipelineStage, ABC):
     """
     Interface for data transformation.
     """
-    @abstractmethod
-    def transform(self, data: pd.DataFrame, config: dict = None) -> pd.DataFrame:
-        """
-        config example:
-        {
-            "rates": [
-                {
-                    "new_column": "defect1_rate",
-                    "numerator": "defect1_count",
-                    "denominator": "total_chips"
-                },
-                {
-                    "new_column": "defect2_rate",
-                    "numerator": "defect2_count",
-                    "denominator": "total_chips"
-                }
-            ]
-        }
-
-        """
-        pass
-
+    pass
 
 # interface for data integration
-class IDataIntegrator(ABC):
+class IDataIntegrator(IPipelineJoiner, ABC):
     """
     Interface for data integration.
     """
-    @abstractmethod
-    def integrate(self, data_list: List[pd.DataFrame]) -> pd.DataFrame:
-        pass
-
-# class for abnormality detection result
-class AbnormalityResult:
-    """
-    Class to represent the result of abnormality detection.
-    """
-    def __init__(self, is_detected: bool, abnormal_items: List[str], details: pd.DataFrame):
-        self.is_detected = is_detected
-        self.abnormal_items = abnormal_items
-        self.details = details
+    pass 
 
 # interface for abnoramlity detection
 # e.g., calculate z-score 
-class IAbnormalityDetector(ABC):
+class IAbnormalityDetector(IPipelineStage, ABC):
     """
     Interface for abnormality detection.
     """
-    @abstractmethod
-    def detect(self, data: pd.DataFrame, target_columns: List[str]) -> AbnormalityResult:
-        pass
+    pass
 
-
-class AnalysisResult:
-    """
-    Class to represent the result of analysis.
-    """
-    def __init__(self, analyzer_name: str, summary: Dict[str, Any], raw_output: Any):
-        self.analyzer_name = analyzer_name
-        self.summary = summary
-        self.raw_output = raw_output
-
-
-class IFactorAnalyzer(ABC):
+class IFactorAnalyzer(IPipelineStage, ABC):
     """
     Interface for factor analysis.
     """
-    @abstractmethod
-    def analyze(self, data: pd.DataFrame, target: str, features: List[str]) -> AnalysisResult:
-        pass
-
+    pass

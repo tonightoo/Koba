@@ -1,0 +1,24 @@
+[
+  {
+    "id": "correlation_analyzer",
+    "depends_on": null,
+    "module": "src.stages.factor_analyzer",
+    "class": "CorrelationFactorAnalyzer",
+    "config": {
+      "target_column": "temperature",
+      "feature_columns": [],
+      "data_types": {}
+    }
+  },
+  {
+    "id": "correlation_analyzer",
+    "depends_on": null,
+    "module": "src.stages.factor_analyzer",
+    "class": "CorrelationFactorAnalyzer",
+    "config": {
+      "target_column": "temperature",
+      "feature_columns": [],
+      "data_types": {}
+    }
+  }
+]
